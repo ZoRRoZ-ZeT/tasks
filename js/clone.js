@@ -1,12 +1,14 @@
 const deepClone = (obj) => {
-  let clone = Object.keys(obj).reduce((result, key) => {
-    result[key] = typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key];
-    return result;
-  }, {});
+  let clone = Object.assign({}, obj);
   if (Array.isArray(obj)) {
     clone.length = obj.length;
     return Array.from(clone);
   }
+  clone = Object.keys(obj).reduce((result, key) => {
+    result[key] = typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key];
+    return result;
+  }, {});
+
   return clone;
 };
 
@@ -22,8 +24,7 @@ const obj = {
     },
   },
 };
-const clone = deepClone(obj);
-clone.obj.val_one[1] = 100;
+const clone = deepClone(1);
 
 console.log(obj); // 1, 2, ['Hi', 1...
 console.log(clone); // 1, 2, ['Hi', 100...
