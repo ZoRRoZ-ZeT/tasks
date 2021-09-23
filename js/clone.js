@@ -1,12 +1,15 @@
 const deepClone = (obj) => {
+  if (typeof obj !== "object") return obj;
+
   let clone = Object.assign({}, obj);
   if (Array.isArray(obj)) {
     clone.length = obj.length;
     return Array.from(clone);
   }
   clone = Object.keys(obj).reduce((result, key) => {
-    result[key] = typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key];
-    return result;
+    const copiedKey = result;
+    copiedKey[key] = deepClone(obj[key]);
+    return copiedKey;
   }, {});
 
   return clone;
@@ -21,10 +24,40 @@ const obj = {
     obj: {
       val_one: 2,
       val_two: 1,
+      func() {
+        console.log("3 level func = " + this.val_one);
+      },
+    },
+    func() {
+      console.log("2 level func = " + this.val_one[1]);
     },
   },
+  func() {
+    console.log("1 level func = " + this.val_one);
+  },
 };
-const clone = deepClone(1);
+const arrayWithFunc = [
+  1,
+  3,
+  () => {
+    console.log(4);
+  },
+];
+const primitiveNumber = 17;
 
-console.log(obj); // 1, 2, ['Hi', 1...
+let clone = deepClone(obj);
+clone.obj.val_one[1] = 100;
 console.log(clone); // 1, 2, ['Hi', 100...
+clone.func();
+clone.obj.func();
+obj.obj.func();
+clone.obj.obj.func();
+
+clone = deepClone(arrayWithFunc);
+console.log(clone);
+clone[2]();
+
+clone = deepClone(primitiveNumber);
+console.log(clone);
+const b = clone + 5;
+console.log(b);
