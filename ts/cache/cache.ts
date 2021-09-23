@@ -14,8 +14,8 @@ const shitCalculation = (
   );
 };
 
-const wrapper = <T extends any[], CacheType>(func: (...args: T) => CacheType) => {
-  const cachedArguments = new Map<any,string>();
+const wrapper = <T extends unknown[], CacheType>(func: (...args: T) => CacheType) => {
+  const cachedArguments = new Map<unknown,string>();
   const cachedObjects = new WeakMap<object,string>();
 
   const cache = new Map<string,CacheType>();
@@ -23,10 +23,15 @@ const wrapper = <T extends any[], CacheType>(func: (...args: T) => CacheType) =>
   let currentCacheId = 0;
 
   return (...args: T): CacheType => {
-    args.forEach((argument: any) => {
-      if (cachedObjects.has(argument) || cachedArguments.has(argument)) return;
+    args.forEach((argument: unknown) => {
+      if ( argument && typeof argument === 'object' ? 
+      cachedObjects.has(argument) : 
+      cachedArguments.has(argument)
+      ) {
+        return;
+      }
       currentCacheId++;
-      if (typeof argument === "object") {
+      if (argument && typeof argument === "object") {
         cachedObjects.set(argument, currentCacheId.toString());
         return;
       }
@@ -35,7 +40,7 @@ const wrapper = <T extends any[], CacheType>(func: (...args: T) => CacheType) =>
 
     const cachedToken = args
       .map((argument) =>
-        typeof argument === "object"
+        argument && typeof argument === "object"
           ? cachedObjects.get(argument)
           : cachedArguments.get(argument)
       )
@@ -46,7 +51,7 @@ const wrapper = <T extends any[], CacheType>(func: (...args: T) => CacheType) =>
       return cache.get(cachedToken) as CacheType;
     }
 
-    const result = func.apply(null, args) as CacheType;
+    const result = func.apply(null, args);
     cache.set(cachedToken, result);
     console.log("Calculated Value");
     return result;
