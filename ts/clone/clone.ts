@@ -1,20 +1,19 @@
-const deepClone = <Type>(obj: Type): Type => {
+const deepClone = <Type, KeyType extends keyof Type>(obj: Type): Type => {
   if (typeof obj !== "object") return obj;
 
   if (Array.isArray(obj)) {
-    const clone = [] as any[];
-    for (const arrayMember of obj as any as any[]) {
-      clone.push(deepClone(arrayMember))
-    }
-    return clone as any as Type;
+    const clone:KeyType[] = [];
+    obj.forEach((arrayMember: KeyType) => {
+      clone.push(deepClone(arrayMember));
+    })
+    return clone as unknown as Type;
   }
-  const objKeys = Object.keys(obj);
-  let clone = Object.assign({},obj) as { [key: string]: any };
-  clone = objKeys.reduce((result: { [key: string]: any }, key: string) => {
-    const copiedKey = result;
-    copiedKey[key] = deepClone(obj[key]);
-    return copiedKey;
-  }, {});
+
+  const objKeys = Object.keys(obj) as KeyType[];
+  const clone = objKeys.reduce((result, key) => ({
+      ...result,
+      [key]: deepClone(obj[key])
+    }), {});
 
   return clone as Type;
 };

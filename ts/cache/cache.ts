@@ -1,14 +1,16 @@
 const shitCalculation = (
   value: number, 
   array: number[], 
-  object: {[key: string]: any}, 
-  shitObject: {[key: string]: any}
+  object: {value: number}, 
+  shitObject: {value: number, array: number[]}
   ): number => {
   return (
     value +
     array.reduce((result, item) => result + item, 0) +
     object.value +
-    shitObject.array.reduce((result, item) => result + item * shitObject.value)
+    shitObject.array.reduce(
+      (result, item) => result + item * shitObject.value
+    )
   );
 };
 
@@ -41,10 +43,10 @@ const wrapper = <T extends any[], CacheType>(func: (...args: T) => CacheType) =>
 
     if (cache.has(cachedToken)) {
       console.log("Cached Value");
-      return cache.get(cachedToken);
+      return cache.get(cachedToken) as CacheType;
     }
 
-    const result = func.apply(this, args) as CacheType;
+    const result = func.apply(null, args) as CacheType;
     cache.set(cachedToken, result);
     console.log("Calculated Value");
     return result;
